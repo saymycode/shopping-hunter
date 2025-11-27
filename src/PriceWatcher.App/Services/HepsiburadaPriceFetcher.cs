@@ -15,10 +15,10 @@ namespace PriceWatcher.App.Services;
 /// </summary>
 public sealed class HepsiburadaPriceFetcher : IPriceFetcher
 {
-private static readonly Regex PriceRegex = new(
-    @"(\\u20BA|₺)?\s*(?<value>\d{1,3}(?:\.\d{3})*(?:,\d{2})?)",
-    RegexOptions.Compiled
-);
+    private static readonly Regex PriceRegex = new(
+        @"(\\u20BA|₺)?\s*(?<value>\d{1,3}(?:[.,]\d{3})*(?:[.,]\d{2})?)",
+        RegexOptions.Compiled
+    );
 
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly ILogger<HepsiburadaPriceFetcher> _logger;
@@ -114,13 +114,34 @@ private static readonly Regex PriceRegex = new(
             .Where(n => HasPriceHint(n.GetAttributeValue("class", string.Empty)) || HasPriceHint(n.GetAttributeValue("id", string.Empty)))
             .ToList();
 
+        decimal? bestPrice = null;
+        string? bestCandidate = null;
+
         foreach (var node in priceNodes)
         {
             var candidate = node.InnerText?.Trim();
-            if (!string.IsNullOrWhiteSpace(candidate) && PriceRegex.IsMatch(candidate))
+            if (string.IsNullOrWhiteSpace(candidate) || !PriceRegex.IsMatch(candidate))
             {
-                return candidate;
+                continue;
             }
+
+            if (TryParsePrice(candidate, out var parsedPrice))
+            {
+                if (bestPrice is null || parsedPrice > bestPrice)
+                {
+                    bestPrice = parsedPrice;
+                    bestCandidate = candidate;
+                }
+            }
+            else if (bestCandidate is null)
+            {
+                bestCandidate = candidate;
+            }
+        }
+
+        if (bestCandidate is not null)
+        {
+            return bestCandidate;
         }
 
         // Fallback: Try meta tag
@@ -153,13 +174,43 @@ private static readonly Regex PriceRegex = new(
             return false;
         }
 
-        var raw = match.Groups["value"].Value;
-        var normalized = raw.Replace(".", string.Empty).Replace(",", ".");
+        var raw = match.Groups["value"].Value.Trim();
+        var normalized = NormalizeNumberString(raw);
+
         if (decimal.TryParse(normalized, NumberStyles.Any, CultureInfo.InvariantCulture, out price))
         {
             return true;
         }
 
-        return decimal.TryParse(raw, NumberStyles.Any, CultureInfo.GetCultureInfo("tr-TR"), out price);
+        return decimal.TryParse(normalized, NumberStyles.Any, CultureInfo.GetCultureInfo("tr-TR"), out price);
+    }
+
+    private static string NormalizeNumberString(string raw)
+    {
+        var value = raw.Replace("\u00A0", string.Empty).Replace(" ", string.Empty);
+        var lastComma = value.LastIndexOf(',');
+        var lastDot = value.LastIndexOf('.');
+
+        if (lastComma >= 0 && lastDot >= 0)
+        {
+            if (lastComma > lastDot)
+            {
+                value = value.Replace(".", string.Empty).Replace(",", ".");
+            }
+            else
+            {
+                value = value.Replace(",", string.Empty);
+            }
+        }
+        else if (lastComma >= 0)
+        {
+            value = value.Replace(".", string.Empty).Replace(",", ".");
+        }
+        else if (lastDot >= 0)
+        {
+            value = value.Replace(",", string.Empty);
+        }
+
+        return value;
     }
 }

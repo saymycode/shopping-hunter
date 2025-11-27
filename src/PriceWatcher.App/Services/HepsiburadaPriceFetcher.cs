@@ -15,7 +15,10 @@ namespace PriceWatcher.App.Services;
 /// </summary>
 public sealed class HepsiburadaPriceFetcher : IPriceFetcher
 {
-    private static readonly Regex PriceRegex = new("(\u20ba|₺)?\s*(?<value>\d{1,3}(?:\.\d{3})*(?:,\d{2})?)", RegexOptions.Compiled);
+private static readonly Regex PriceRegex = new(
+    @"(\\u20BA|₺)?\s*(?<value>\d{1,3}(?:\.\d{3})*(?:,\d{2})?)",
+    RegexOptions.Compiled
+);
 
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly ILogger<HepsiburadaPriceFetcher> _logger;
@@ -32,7 +35,21 @@ public sealed class HepsiburadaPriceFetcher : IPriceFetcher
         try
         {
             using var client = _httpClientFactory.CreateClient(nameof(HepsiburadaPriceFetcher));
-            var response = await client.GetAsync(productUrl, cancellationToken).ConfigureAwait(false);
+            
+            // Create request message with headers to avoid 403 Forbidden error
+            using var request = new HttpRequestMessage(HttpMethod.Get, productUrl);
+            request.Headers.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
+            request.Headers.Add("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8");
+            request.Headers.Add("Accept-Language", "tr-TR,tr;q=0.9");
+            request.Headers.Add("Referer", "https://www.hepsiburada.com/");
+            request.Headers.Add("Accept-Encoding", "gzip, deflate, br");
+            request.Headers.Add("Connection", "keep-alive");
+            request.Headers.Add("Cache-Control", "max-age=0");
+            request.Headers.Add("Sec-Fetch-Dest", "document");
+            request.Headers.Add("Sec-Fetch-Mode", "navigate");
+            request.Headers.Add("Sec-Fetch-Site", "same-origin");
+            
+            var response = await client.SendAsync(request, cancellationToken).ConfigureAwait(false);
             if (!response.IsSuccessStatusCode)
             {
                 _logger.LogWarning("Failed to fetch price for {Url}. Status code: {StatusCode}", productUrl, response.StatusCode);
@@ -42,6 +59,10 @@ public sealed class HepsiburadaPriceFetcher : IPriceFetcher
             var html = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
             var doc = new HtmlDocument();
             doc.LoadHtml(html);
+
+            // Debug: Log HTML to file for inspection
+            System.IO.File.WriteAllText("page_debug.html", html);
+            _logger.LogInformation("HTML saved to page_debug.html");
 
             var priceText = ExtractPriceText(doc);
             if (priceText is null)
@@ -67,6 +88,26 @@ public sealed class HepsiburadaPriceFetcher : IPriceFetcher
 
     private static string? ExtractPriceText(HtmlDocument doc)
     {
+        // First, try to extract from JSON-LD structured data
+        var jsonLdScript = doc.DocumentNode
+            .SelectNodes("//script[@type='application/ld+json']")?
+            .FirstOrDefault();
+        
+        if (jsonLdScript != null)
+        {
+            var jsonContent = jsonLdScript.InnerText;
+            var priceMatch = Regex.Match(jsonContent, @"""price""\s*:\s*""?(\d+(?:\.\d{2})?|[^\""]+)""?", RegexOptions.IgnoreCase);
+            if (priceMatch.Success)
+            {
+                var priceValue = priceMatch.Groups[1].Value.Trim('"');
+                if (!string.IsNullOrWhiteSpace(priceValue))
+                {
+                    return priceValue;
+                }
+            }
+        }
+
+        // Fallback: Try DOM elements with price-related classes/ids
         var priceNodes = doc.DocumentNode
             .Descendants()
             .Where(n => n.Name is "span" or "div" || n.Name.Equals("ins", StringComparison.OrdinalIgnoreCase))
@@ -82,6 +123,7 @@ public sealed class HepsiburadaPriceFetcher : IPriceFetcher
             }
         }
 
+        // Fallback: Try meta tag
         var metaPrice = doc.DocumentNode
             .SelectNodes("//meta[@itemprop='price']")?
             .Select(n => n.GetAttributeValue("content", string.Empty))

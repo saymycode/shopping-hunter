@@ -21,6 +21,11 @@ builder.Services.AddHttpClient(nameof(HepsiburadaPriceFetcher), client =>
 {
     client.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
     client.DefaultRequestHeaders.Accept.ParseAdd("text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8");
+})
+.ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler
+{
+    AutomaticDecompression = System.Net.DecompressionMethods.GZip | System.Net.DecompressionMethods.Deflate | System.Net.DecompressionMethods.Brotli,
+    AllowAutoRedirect = true
 });
 
 builder.Services.AddSingleton<IPriceFetcher, HepsiburadaPriceFetcher>();
@@ -44,4 +49,27 @@ builder.Logging.AddSimpleConsole(options =>
     options.TimestampFormat = "HH:mm:ss ";
 });
 
-await builder.Build().RunAsync();
+var host = builder.Build();
+
+// Initialize admin subscriber on startup
+using (var scope = host.Services.CreateScope())
+{
+    var storage = scope.ServiceProvider.GetRequiredService<IPriceStorage>();
+    var options = scope.ServiceProvider.GetRequiredService<Microsoft.Extensions.Options.IOptions<TelegramOptions>>().Value;
+    var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+    
+    if (long.TryParse(options.AdminChatId, out var adminChatId))
+    {
+        try
+        {
+            await storage.AddOrActivateSubscriberAsync(adminChatId, CancellationToken.None);
+            logger.LogInformation("Admin chat {AdminChatId} added as subscriber", adminChatId);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Failed to add admin as subscriber");
+        }
+    }
+}
+
+await host.RunAsync();

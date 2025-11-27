@@ -1,0 +1,162 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>PriceWatcher.App</name>
+    </assembly>
+    <members>
+        <member name="T:PriceWatcher.App.Configuration.HepsiburadaOptions">
+            <summary>
+            Represents configuration settings for scraping Hepsiburada product pages.
+            </summary>
+        </member>
+        <member name="P:PriceWatcher.App.Configuration.HepsiburadaOptions.ProductUrls">
+            <summary>
+            Gets or sets the collection of product URLs to watch.
+            </summary>
+        </member>
+        <member name="P:PriceWatcher.App.Configuration.HepsiburadaOptions.RequestIntervalMinutes">
+            <summary>
+            Gets or sets the interval, in minutes, between successive price checks.
+            </summary>
+        </member>
+        <member name="P:PriceWatcher.App.Configuration.HepsiburadaOptions.NotifyOnEveryPull">
+            <summary>
+            Gets or sets a value indicating whether notifications should be sent on every pull regardless of change amount.
+            </summary>
+        </member>
+        <member name="P:PriceWatcher.App.Configuration.HepsiburadaOptions.MinChangePercentageToNotify">
+            <summary>
+            Gets or sets the minimum percentage difference required to notify when <see cref="P:PriceWatcher.App.Configuration.HepsiburadaOptions.NotifyOnEveryPull"/> is false.
+            </summary>
+        </member>
+        <member name="T:PriceWatcher.App.Configuration.StorageOptions">
+            <summary>
+            Represents storage configuration settings for the application.
+            </summary>
+        </member>
+        <member name="P:PriceWatcher.App.Configuration.StorageOptions.DbPath">
+            <summary>
+            Gets or sets the LiteDB database file path.
+            </summary>
+        </member>
+        <member name="T:PriceWatcher.App.Configuration.TelegramOptions">
+            <summary>
+            Represents Telegram bot configuration settings.
+            </summary>
+        </member>
+        <member name="P:PriceWatcher.App.Configuration.TelegramOptions.BotToken">
+            <summary>
+            Gets or sets the bot token obtained from BotFather.
+            </summary>
+        </member>
+        <member name="P:PriceWatcher.App.Configuration.TelegramOptions.AdminChatId">
+            <summary>
+            Gets or sets the administrator chat identifier.
+            </summary>
+        </member>
+        <member name="T:PriceWatcher.App.Models.PriceCheckResult">
+            <summary>
+            Represents the result of a price check operation.
+            </summary>
+        </member>
+        <member name="T:PriceWatcher.App.Models.ProductPriceHistory">
+            <summary>
+            Represents the last known price state for a Hepsiburada product.
+            </summary>
+        </member>
+        <member name="T:PriceWatcher.App.Models.TelegramSubscriber">
+            <summary>
+            Represents a Telegram user subscription for notifications.
+            </summary>
+        </member>
+        <member name="T:PriceWatcher.App.Services.HepsiburadaPriceFetcher">
+            <summary>
+            Scrapes product prices from Hepsiburada product pages using HTML parsing.
+            </summary>
+        </member>
+        <member name="M:PriceWatcher.App.Services.HepsiburadaPriceFetcher.FetchPriceAsync(System.String,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="T:PriceWatcher.App.Services.IPriceFetcher">
+            <summary>
+            Fetches product prices from an external source.
+            </summary>
+        </member>
+        <member name="M:PriceWatcher.App.Services.IPriceFetcher.FetchPriceAsync(System.String,System.Threading.CancellationToken)">
+            <summary>
+            Retrieves the current price for the given product URL.
+            </summary>
+            <param name="productUrl">The product URL to check.</param>
+            <param name="cancellationToken">A token to cancel the operation.</param>
+            <returns>The price if found; otherwise <c>null</c>.</returns>
+        </member>
+        <member name="T:PriceWatcher.App.Services.IPriceStorage">
+            <summary>
+            Provides persistence for price history and Telegram subscribers.
+            </summary>
+        </member>
+        <member name="T:PriceWatcher.App.Services.ITelegramNotificationService">
+            <summary>
+            Sends Telegram notifications to subscribers.
+            </summary>
+        </member>
+        <member name="M:PriceWatcher.App.Services.ITelegramNotificationService.NotifyPriceChangeAsync(PriceWatcher.App.Models.PriceCheckResult,System.Threading.CancellationToken)">
+            <summary>
+            Broadcasts a price change notification to all active subscribers.
+            </summary>
+        </member>
+        <member name="M:PriceWatcher.App.Services.ITelegramNotificationService.NotifyAdminAsync(System.String,System.Threading.CancellationToken)">
+            <summary>
+            Sends an administrative message.
+            </summary>
+        </member>
+        <member name="T:PriceWatcher.App.Services.ITelegramUpdateHandler">
+            <summary>
+            Handles Telegram updates for the bot.
+            </summary>
+        </member>
+        <member name="T:PriceWatcher.App.Services.LiteDbPriceStorage">
+            <summary>
+            LiteDB-backed implementation of <see cref="T:PriceWatcher.App.Services.IPriceStorage"/>.
+            </summary>
+        </member>
+        <member name="T:PriceWatcher.App.Services.TelegramNotificationService">
+            <summary>
+            Telegram implementation for broadcasting notifications.
+            </summary>
+        </member>
+        <member name="M:PriceWatcher.App.Services.TelegramNotificationService.NotifyPriceChangeAsync(PriceWatcher.App.Models.PriceCheckResult,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:PriceWatcher.App.Services.TelegramNotificationService.NotifyAdminAsync(System.String,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="T:PriceWatcher.App.Services.TelegramUpdateHandler">
+            <summary>
+            Processes Telegram updates and commands.
+            </summary>
+        </member>
+        <member name="M:PriceWatcher.App.Services.TelegramUpdateHandler.HandleUpdateAsync(Telegram.Bot.ITelegramBotClient,Telegram.Bot.Types.Update,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:PriceWatcher.App.Services.TelegramUpdateHandler.HandleErrorAsync(Telegram.Bot.ITelegramBotClient,System.Exception,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="T:PriceWatcher.App.Workers.PriceWatcherWorker">
+            <summary>
+            Periodically checks product prices and notifies subscribers when needed.
+            </summary>
+        </member>
+        <member name="M:PriceWatcher.App.Workers.PriceWatcherWorker.ExecuteAsync(System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="T:PriceWatcher.App.Workers.TelegramBotWorker">
+            <summary>
+            Hosts the Telegram bot receiver loop.
+            </summary>
+        </member>
+        <member name="M:PriceWatcher.App.Workers.TelegramBotWorker.ExecuteAsync(System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+    </members>
+</doc>

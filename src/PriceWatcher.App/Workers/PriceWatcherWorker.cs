@@ -8,6 +8,7 @@ using Microsoft.Extensions.Options;
 using PriceWatcher.App.Configuration;
 using PriceWatcher.App.Models;
 using PriceWatcher.App.Services;
+using Microsoft.Extensions.Hosting;
 
 namespace PriceWatcher.App.Workers;
 

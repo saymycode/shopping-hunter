@@ -2,7 +2,6 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using PriceWatcher.App.Configuration;
@@ -20,14 +19,14 @@ public sealed class PriceWatcherWorker : BackgroundService
     private readonly IPriceFetcher _priceFetcher;
     private readonly IPriceStorage _priceStorage;
     private readonly ITelegramNotificationService _notificationService;
-    private readonly IOptions<HepsiburadaOptions> _options;
+    private readonly IOptions<PriceWatcherOptions> _options;
     private readonly ILogger<PriceWatcherWorker> _logger;
 
     public PriceWatcherWorker(
         IPriceFetcher priceFetcher,
         IPriceStorage priceStorage,
         ITelegramNotificationService notificationService,
-        IOptions<HepsiburadaOptions> options,
+        IOptions<PriceWatcherOptions> options,
         ILogger<PriceWatcherWorker> logger)
     {
         _priceFetcher = priceFetcher;

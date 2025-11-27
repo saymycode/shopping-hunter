@@ -16,10 +16,10 @@ namespace PriceWatcher.App.Services;
 public sealed class TelegramUpdateHandler : ITelegramUpdateHandler
 {
     private readonly IPriceStorage _priceStorage;
-    private readonly IOptions<HepsiburadaOptions> _options;
+    private readonly IOptions<PriceWatcherOptions> _options;
     private readonly ILogger<TelegramUpdateHandler> _logger;
 
-    public TelegramUpdateHandler(IPriceStorage priceStorage, IOptions<HepsiburadaOptions> options, ILogger<TelegramUpdateHandler> logger)
+    public TelegramUpdateHandler(IPriceStorage priceStorage, IOptions<PriceWatcherOptions> options, ILogger<TelegramUpdateHandler> logger)
     {
         _priceStorage = priceStorage;
         _options = options;

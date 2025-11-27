@@ -177,12 +177,12 @@ public sealed class HepsiburadaPriceFetcher : IPriceFetcher
         var raw = match.Groups["value"].Value.Trim();
         var normalized = NormalizeNumberString(raw);
 
-        if (decimal.TryParse(normalized, NumberStyles.Any, CultureInfo.InvariantCulture, out price))
+        if (decimal.TryParse(text, NumberStyles.Any, CultureInfo.InvariantCulture, out price))
         {
             return true;
         }
 
-        return decimal.TryParse(normalized, NumberStyles.Any, CultureInfo.GetCultureInfo("tr-TR"), out price);
+        return decimal.TryParse(text, NumberStyles.Any, CultureInfo.GetCultureInfo("tr-TR"), out price);
     }
 
     private static string NormalizeNumberString(string raw)

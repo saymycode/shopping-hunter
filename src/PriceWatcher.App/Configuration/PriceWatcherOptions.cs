@@ -3,9 +3,9 @@ using System.Collections.Generic;
 namespace PriceWatcher.App.Configuration;
 
 /// <summary>
-/// Represents configuration settings for scraping Hepsiburada product pages.
+/// Represents configuration settings for scraping e-commerce product pages.
 /// </summary>
-public sealed class HepsiburadaOptions
+public sealed class PriceWatcherOptions
 {
     /// <summary>
     /// Gets or sets the collection of product URLs to watch.

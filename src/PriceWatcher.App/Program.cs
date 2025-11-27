@@ -13,7 +13,7 @@ builder.Configuration
     .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
     .AddEnvironmentVariables();
 
-builder.Services.Configure<HepsiburadaOptions>(builder.Configuration.GetSection("Hepsiburada"));
+builder.Services.Configure<PriceWatcherOptions>(builder.Configuration.GetSection("PriceWatcher"));
 builder.Services.Configure<TelegramOptions>(builder.Configuration.GetSection("Telegram"));
 builder.Services.Configure<StorageOptions>(builder.Configuration.GetSection("Storage"));
 
@@ -28,7 +28,32 @@ builder.Services.AddHttpClient(nameof(HepsiburadaPriceFetcher), client =>
     AllowAutoRedirect = true
 });
 
-builder.Services.AddSingleton<IPriceFetcher, HepsiburadaPriceFetcher>();
+builder.Services.AddHttpClient(nameof(TrendyolPriceFetcher), client =>
+{
+    client.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
+    client.DefaultRequestHeaders.Accept.ParseAdd("text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8");
+})
+.ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler
+{
+    AutomaticDecompression = System.Net.DecompressionMethods.GZip | System.Net.DecompressionMethods.Deflate | System.Net.DecompressionMethods.Brotli,
+    AllowAutoRedirect = true
+});
+
+builder.Services.AddHttpClient(nameof(AmazonPriceFetcher), client =>
+{
+    client.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
+    client.DefaultRequestHeaders.Accept.ParseAdd("text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8");
+})
+.ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler
+{
+    AutomaticDecompression = System.Net.DecompressionMethods.GZip | System.Net.DecompressionMethods.Deflate | System.Net.DecompressionMethods.Brotli,
+    AllowAutoRedirect = true
+});
+
+builder.Services.AddSingleton<ISitePriceFetcher, HepsiburadaPriceFetcher>();
+builder.Services.AddSingleton<ISitePriceFetcher, TrendyolPriceFetcher>();
+builder.Services.AddSingleton<ISitePriceFetcher, AmazonPriceFetcher>();
+builder.Services.AddSingleton<IPriceFetcher, MultiStorePriceFetcher>();
 builder.Services.AddSingleton<IPriceStorage, LiteDbPriceStorage>();
 builder.Services.AddSingleton<ITelegramNotificationService, TelegramNotificationService>();
 builder.Services.AddSingleton<ITelegramUpdateHandler, TelegramUpdateHandler>();

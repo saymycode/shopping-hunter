@@ -4,29 +4,29 @@
         <name>PriceWatcher.App</name>
     </assembly>
     <members>
-        <member name="T:PriceWatcher.App.Configuration.HepsiburadaOptions">
+        <member name="T:PriceWatcher.App.Configuration.PriceWatcherOptions">
             <summary>
-            Represents configuration settings for scraping Hepsiburada product pages.
+            Represents configuration settings for scraping e-commerce product pages.
             </summary>
         </member>
-        <member name="P:PriceWatcher.App.Configuration.HepsiburadaOptions.ProductUrls">
+        <member name="P:PriceWatcher.App.Configuration.PriceWatcherOptions.ProductUrls">
             <summary>
             Gets or sets the collection of product URLs to watch.
             </summary>
         </member>
-        <member name="P:PriceWatcher.App.Configuration.HepsiburadaOptions.RequestIntervalMinutes">
+        <member name="P:PriceWatcher.App.Configuration.PriceWatcherOptions.RequestIntervalMinutes">
             <summary>
             Gets or sets the interval, in minutes, between successive price checks.
             </summary>
         </member>
-        <member name="P:PriceWatcher.App.Configuration.HepsiburadaOptions.NotifyOnEveryPull">
+        <member name="P:PriceWatcher.App.Configuration.PriceWatcherOptions.NotifyOnEveryPull">
             <summary>
             Gets or sets a value indicating whether notifications should be sent on every pull regardless of change amount.
             </summary>
         </member>
-        <member name="P:PriceWatcher.App.Configuration.HepsiburadaOptions.MinChangePercentageToNotify">
+        <member name="P:PriceWatcher.App.Configuration.PriceWatcherOptions.MinChangePercentageToNotify">
             <summary>
-            Gets or sets the minimum percentage difference required to notify when <see cref="P:PriceWatcher.App.Configuration.HepsiburadaOptions.NotifyOnEveryPull"/> is false.
+            Gets or sets the minimum percentage difference required to notify when <see cref="P:PriceWatcher.App.Configuration.PriceWatcherOptions.NotifyOnEveryPull"/> is false.
             </summary>
         </member>
         <member name="T:PriceWatcher.App.Configuration.StorageOptions">
@@ -69,13 +69,52 @@
             Represents a Telegram user subscription for notifications.
             </summary>
         </member>
+        <member name="T:PriceWatcher.App.Services.AmazonPriceFetcher">
+            <summary>
+            Scrapes product prices from Amazon Turkey product pages.
+            </summary>
+        </member>
+        <member name="M:PriceWatcher.App.Services.AmazonPriceFetcher.CanHandle(System.String)">
+            <inheritdoc />
+        </member>
         <member name="T:PriceWatcher.App.Services.HepsiburadaPriceFetcher">
             <summary>
             Scrapes product prices from Hepsiburada product pages using HTML parsing.
             </summary>
         </member>
-        <member name="M:PriceWatcher.App.Services.HepsiburadaPriceFetcher.FetchPriceAsync(System.String,System.Threading.CancellationToken)">
+        <member name="M:PriceWatcher.App.Services.HepsiburadaPriceFetcher.CanHandle(System.String)">
             <inheritdoc />
+        </member>
+        <member name="T:PriceWatcher.App.Services.HtmlPriceFetcherBase">
+            <summary>
+            Base implementation for HTML-based price fetchers.
+            </summary>
+        </member>
+        <member name="P:PriceWatcher.App.Services.HtmlPriceFetcherBase.ClientName">
+            <summary>
+            The HTTP client name to use when resolving from the factory.
+            </summary>
+        </member>
+        <member name="M:PriceWatcher.App.Services.HtmlPriceFetcherBase.CanHandle(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:PriceWatcher.App.Services.HtmlPriceFetcherBase.FetchPriceAsync(System.String,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:PriceWatcher.App.Services.HtmlPriceFetcherBase.BuildRequest(System.String)">
+            <summary>
+            Builds an HTTP request with default headers suitable for the target site.
+            </summary>
+        </member>
+        <member name="M:PriceWatcher.App.Services.HtmlPriceFetcherBase.GetPreferredPriceText(HtmlAgilityPack.HtmlDocument)">
+            <summary>
+            Allows derived classes to prioritize site-specific price extraction before fallbacks.
+            </summary>
+        </member>
+        <member name="M:PriceWatcher.App.Services.HtmlPriceFetcherBase.ExtractPriceText(HtmlAgilityPack.HtmlDocument)">
+            <summary>
+            Attempts to extract the price text using common patterns such as JSON-LD and price-related elements.
+            </summary>
         </member>
         <member name="T:PriceWatcher.App.Services.IPriceFetcher">
             <summary>
@@ -94,6 +133,18 @@
             <summary>
             Provides persistence for price history and Telegram subscribers.
             </summary>
+        </member>
+        <member name="T:PriceWatcher.App.Services.ISitePriceFetcher">
+            <summary>
+            Represents a price fetcher that can handle a specific e-commerce site.
+            </summary>
+        </member>
+        <member name="M:PriceWatcher.App.Services.ISitePriceFetcher.CanHandle(System.String)">
+            <summary>
+            Determines whether the fetcher can handle the provided product URL.
+            </summary>
+            <param name="productUrl">The product URL.</param>
+            <returns><c>true</c> if the URL is supported; otherwise, <c>false</c>.</returns>
         </member>
         <member name="T:PriceWatcher.App.Services.ITelegramNotificationService">
             <summary>
@@ -120,6 +171,14 @@
             LiteDB-backed implementation of <see cref="T:PriceWatcher.App.Services.IPriceStorage"/>.
             </summary>
         </member>
+        <member name="T:PriceWatcher.App.Services.MultiStorePriceFetcher">
+            <summary>
+            Routes price fetching requests to the appropriate site-specific fetcher.
+            </summary>
+        </member>
+        <member name="M:PriceWatcher.App.Services.MultiStorePriceFetcher.FetchPriceAsync(System.String,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
         <member name="T:PriceWatcher.App.Services.TelegramNotificationService">
             <summary>
             Telegram implementation for broadcasting notifications.
@@ -140,6 +199,14 @@
             <inheritdoc />
         </member>
         <member name="M:PriceWatcher.App.Services.TelegramUpdateHandler.HandleErrorAsync(Telegram.Bot.ITelegramBotClient,System.Exception,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="T:PriceWatcher.App.Services.TrendyolPriceFetcher">
+            <summary>
+            Scrapes product prices from Trendyol product pages.
+            </summary>
+        </member>
+        <member name="M:PriceWatcher.App.Services.TrendyolPriceFetcher.CanHandle(System.String)">
             <inheritdoc />
         </member>
         <member name="T:PriceWatcher.App.Workers.PriceWatcherWorker">

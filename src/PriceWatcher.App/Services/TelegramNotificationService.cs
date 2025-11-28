@@ -67,8 +67,10 @@ public sealed class TelegramNotificationService : ITelegramNotificationService
     private static string BuildPriceMessage(PriceCheckResult result)
     {
         var builder = new StringBuilder();
-        builder.AppendLine("Hepsiburada fiyat güncellemesi:");
-        builder.AppendLine($"Ürün: {result.ProductUrl}");
+        builder.AppendLine("Favori ürün fiyat güncellemesi:");     
+        var direction = result.ChangeRate >= 0 ? "+" : string.Empty;
+        builder.AppendLine($"Değişim: {direction}{result.ChangeRate:F2}%");      
+
         if (result.OldPrice.HasValue)
         {
             builder.AppendLine($"Eski fiyat: {result.OldPrice.Value.ToString("N2", CultureInfo.GetCultureInfo("tr-TR"))} TL");
@@ -79,9 +81,9 @@ public sealed class TelegramNotificationService : ITelegramNotificationService
         }
 
         builder.AppendLine($"Yeni fiyat: {result.NewPrice.ToString("N2", CultureInfo.GetCultureInfo("tr-TR"))} TL");
-        var direction = result.ChangeRate >= 0 ? "+" : string.Empty;
-        builder.AppendLine($"Değişim: {direction}{result.ChangeRate:F2}%");
-        builder.AppendLine($"Tarih: {result.CheckedAt:dd.MM.yyyy HH:mm:ss}");
+        builder.AppendLine($"Ürün: {result.ProductUrl}");
+
+        builder.AppendLine($"Tarih: {result.CheckedAt.AddHours(3):dd.MM.yyyy HH:mm:ss}");
         return builder.ToString();
     }
 }

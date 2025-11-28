@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "d:\\Git\\shopping-hunter\\shopping-hunter\\src\\PriceWatcher.App\\PriceWatcher.App.csproj": {}
+    "D:\\Git\\shopping-hunter\\shopping-hunter\\src\\PriceWatcher.App\\PriceWatcher.App.csproj": {}
   },
   "projects": {
-    "d:\\Git\\shopping-hunter\\shopping-hunter\\src\\PriceWatcher.App\\PriceWatcher.App.csproj": {
+    "D:\\Git\\shopping-hunter\\shopping-hunter\\src\\PriceWatcher.App\\PriceWatcher.App.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "d:\\Git\\shopping-hunter\\shopping-hunter\\src\\PriceWatcher.App\\PriceWatcher.App.csproj",
+        "projectUniqueName": "D:\\Git\\shopping-hunter\\shopping-hunter\\src\\PriceWatcher.App\\PriceWatcher.App.csproj",
         "projectName": "PriceWatcher.App",
-        "projectPath": "d:\\Git\\shopping-hunter\\shopping-hunter\\src\\PriceWatcher.App\\PriceWatcher.App.csproj",
+        "projectPath": "D:\\Git\\shopping-hunter\\shopping-hunter\\src\\PriceWatcher.App\\PriceWatcher.App.csproj",
         "packagesPath": "C:\\Users\\b.ulusoy\\.nuget\\packages\\",
-        "outputPath": "d:\\Git\\shopping-hunter\\shopping-hunter\\src\\PriceWatcher.App\\obj\\",
+        "outputPath": "D:\\Git\\shopping-hunter\\shopping-hunter\\src\\PriceWatcher.App\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

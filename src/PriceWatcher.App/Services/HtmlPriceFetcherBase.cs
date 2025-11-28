@@ -62,8 +62,7 @@ public abstract class HtmlPriceFetcherBase : ISitePriceFetcher
                 _logger.LogWarning("Price element could not be found for {Url}", productUrl);
                 return null;
             }
-
-            if (TryParsePrice(priceText, out var price))
+            if (TryParsePrice(priceText, out decimal price))
             {
                 return price;
             }
@@ -111,9 +110,10 @@ public abstract class HtmlPriceFetcherBase : ISitePriceFetcher
         {
             var priceMatch = Regex.Match(
                 jsonLdScript.InnerText,
-                @"\"price\"\s*:\s*\"?([\d.,\s]+)\"?",
+                @"\""price\""\s*:\s*\""?(?<value>[\d\.,\s]+)\""?",
                 RegexOptions.IgnoreCase | RegexOptions.Multiline
             );
+
 
             if (priceMatch.Success)
             {
@@ -199,7 +199,7 @@ public abstract class HtmlPriceFetcherBase : ISitePriceFetcher
         }
 
         var raw = match.Groups["value"].Value.Trim();
-        var normalized = NormalizeNumberString(raw);
+        var normalized = NormalizeNumberString(text);
 
         if (decimal.TryParse(normalized, NumberStyles.Any, CultureInfo.InvariantCulture, out price))
         {
@@ -211,30 +211,26 @@ public abstract class HtmlPriceFetcherBase : ISitePriceFetcher
 
     private static string NormalizeNumberString(string raw)
     {
-        var value = raw.Replace("\u00A0", string.Empty).Replace(" ", string.Empty);
-        var lastComma = value.LastIndexOf(',');
-        var lastDot = value.LastIndexOf('.');
+        var value = raw.Replace("\u00A0", "").Replace(" ", "");
 
-        if (lastComma >= 0 && lastDot >= 0)
+        // 1) Nokta + Virgül birlikte ise → Türkçe format demektir: 36.499,00
+        if (value.Contains(".") && value.Contains(","))
         {
-            if (lastComma > lastDot)
-            {
-                value = value.Replace(".", string.Empty).Replace(",", ".");
-            }
-            else
-            {
-                value = value.Replace(",", string.Empty);
-            }
-        }
-        else if (lastComma >= 0)
-        {
-            value = value.Replace(".", string.Empty).Replace(",", ".");
-        }
-        else if (lastDot >= 0)
-        {
-            value = value.Replace(",", string.Empty);
+            // binlikleri sil
+            value = value.Replace(".", "");
+            // ondalığı . yap
+            return value.Replace(",", ".");
         }
 
+        // 2) Sadece virgül varsa → ondalık virgül demektir: 36499,00
+        if (value.Contains(","))
+        {
+            return value.Replace(".", "").Replace(",", ".");
+        }
+
+        // 3) Sadece nokta varsa → İngilizce ondalık: 36499.00
+        // Hiç dokunma
         return value;
     }
+
 }

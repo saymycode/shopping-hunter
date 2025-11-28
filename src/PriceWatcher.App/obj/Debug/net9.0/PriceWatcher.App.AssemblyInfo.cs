@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("PriceWatcher.App")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d03c7dd5802059abb7513cda11ec655f13761f43")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+1e632fd79d9212d9b94235bc246007e1b3fbca97")]
 [assembly: System.Reflection.AssemblyProductAttribute("PriceWatcher.App")]
 [assembly: System.Reflection.AssemblyTitleAttribute("PriceWatcher.App")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

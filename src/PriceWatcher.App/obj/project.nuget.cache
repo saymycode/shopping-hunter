@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "KnI7Q3MI3JY=",
+  "dgSpecHash": "yuf1kRq+poY=",
   "success": true,
-  "projectFilePath": "d:\\Git\\shopping-hunter\\shopping-hunter\\src\\PriceWatcher.App\\PriceWatcher.App.csproj",
+  "projectFilePath": "D:\\Git\\shopping-hunter\\shopping-hunter\\src\\PriceWatcher.App\\PriceWatcher.App.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\b.ulusoy\\.nuget\\packages\\htmlagilitypack\\1.11.59\\htmlagilitypack.1.11.59.nupkg.sha512",
     "C:\\Users\\b.ulusoy\\.nuget\\packages\\litedb\\5.0.21\\litedb.5.0.21.nupkg.sha512",
